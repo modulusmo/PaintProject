@@ -1,0 +1,14 @@
+/* 
+    Author     : Moses Cuevas
+*/
+#mainWindow {
+    -fx-background-color: #eef4f4;
+}
+
+#Topbar{
+    -fx-background-color: #dde4e4;
+}
+
+#canvasColor{
+    -fx-background-color: #ffffff;
+}
