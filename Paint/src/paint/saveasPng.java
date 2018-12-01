@@ -30,7 +30,7 @@ image = ImageIO.read(pngimage);
 int width          = image.getWidth();
 int height         = image.getHeight();
 int[][] result = PngGetPixels(image);
-        try (OutputStream out = new FileOutputStream("DumbPngOutDemo.png")) {
+        try (OutputStream out = new FileOutputStream("PngOutput.png")) {
 			write(result, out);
 		}
 	
