@@ -149,16 +149,16 @@ private static byte[] deflate(byte[] data) throws IOException {
 	}
 	
 	
-	// Writes the given chunk (with type name and payload data) to the given output stream.
+	
 	private static void writeChunk(String type, byte[] data, OutputStream out) throws IOException {
 		CRC32 c = new CRC32();
 		c.update(type.getBytes(StandardCharsets.US_ASCII));
 		c.update(data);
 		
-		writeInt32(data.length, out);  // Length
+		writeInt32(data.length, out);  
 		out.write(type.getBytes(StandardCharsets.US_ASCII));  // Type
 		out.write(data);  // Data
-		writeInt32((int)c.getValue(), out);  // CRC-32
+		writeInt32((int)c.getValue(), out);  
 	}
 	
 	
