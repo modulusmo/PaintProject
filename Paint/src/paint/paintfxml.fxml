@@ -26,6 +26,7 @@
                     <items>
                       <MenuItem mnemonicParsing="false" text="Open" />
                       <MenuItem mnemonicParsing="false" onAction="#saveAsJpeg" text="Save" />
+                       <MenuItem mnemonicParsing="false" onAction="#saveAsPng" text="Save" />
                         <MenuItem mnemonicParsing="false" text="Exit" />
                     </items>
                   </MenuButton>
