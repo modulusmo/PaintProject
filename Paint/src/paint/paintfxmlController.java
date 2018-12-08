@@ -4,7 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -171,7 +173,7 @@ public class paintfxmlController implements Initializable {
     }
     
     @FXML
-    public void saveAsJpeg(ActionEvent e){
+    public void saveJpeg(ActionEvent e){
         /*BufferedImage bimage = new BufferedImage(canvas.getWidth(), canvas.getHeight(),BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bimage.createGraphics();
         canvas.paint(g);*/
@@ -181,13 +183,60 @@ public class paintfxmlController implements Initializable {
         WritableImage wimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
         canvas.snapshot(sp,wimage);
         
-        File file = new File("testFromJavaPaint.png");
+        //File file = new File("testFromJavaPaint.jpg");
         //BufferedImage bimage = (SwingFXUtils.fromFXImage(img, null))
         
-        try {
+        BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        
+        
+        SaveAsJPG jpegHandler= new SaveAsJPG(bimage);
+        
+        /*try {
+            ImageIO.write(SwingFXUtils.fromFXImage(wimage, null), "jpg", file);//remove this
+        } catch (IOException ex) {
+            // TODO: handle exception here
+        }*/
+    }
+    
+    @FXML
+    public void savePng(ActionEvent e){
+
+        SnapshotParameters sp = new SnapshotParameters();
+        sp.setFill(Color.WHITE);//can set to TRANSPARENT
+        
+        WritableImage wimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+        canvas.snapshot(sp,wimage);
+        
+        //File file = new File("testFromJavaPaint.png");
+        BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        
+        /*try {
             ImageIO.write(SwingFXUtils.fromFXImage(wimage, null), "png", file);//remove this
         } catch (IOException ex) {
             // TODO: handle exception here
+        }*/
+        
+        saveasPng pngHandler = new saveasPng();
+        int[][] result = pngHandler.PngGetPixels(bimage);
+        try (OutputStream out = new FileOutputStream("PngOutput.png")) {
+            pngHandler.write(result, out);
+        }
+        catch(Exception f){}
+    }
+    
+    @FXML
+    public void addone(ActionEvent e){
+        double size = Double.parseDouble(bsize.getText());
+        size = size + 1;
+        bsize.setText(size+"");//set to string
+    }
+    
+    @FXML
+    public void subone(ActionEvent e){
+        double size = Double.parseDouble(bsize.getText());
+        if(size > 1){
+            size = size - 1;
+            bsize.setText(size+"");//set to string
         }
     }
     

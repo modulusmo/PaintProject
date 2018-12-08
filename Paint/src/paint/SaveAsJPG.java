@@ -1,4 +1,4 @@
-package saveasjpg;
+package paint;
 
 
 import java.awt.Color;
@@ -7,7 +7,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import javafx.scene.AccessibleAttribute;
 import javax.imageio.ImageIO;
+import javax.management.Query;
 public class SaveAsJPG {
 
 	/**
@@ -15,7 +20,7 @@ public class SaveAsJPG {
 	 */
     public static final int BLOCKSIZE = 8;
     
-   private static final double[][] quantMatrix = {
+    private static final double[][] quantMatrixLuma = {
         { 16, 11, 10, 16, 24, 40, 51, 61},
         { 12, 12, 14, 19, 26, 58, 60, 55},
         { 14, 13, 16, 24, 40, 57, 69, 56},
@@ -25,30 +30,51 @@ public class SaveAsJPG {
         { 49, 64, 78, 87,103,121,120,101},
         { 72, 92, 95, 98,112,100,103, 99}
     };
+    private static final double[][] quantMatrixChroma = {
+        { 17, 18, 24, 47, 99, 99, 99, 99},
+        { 18, 21, 26, 66, 99, 99, 99, 99},
+        { 24, 26, 56, 99, 99, 99, 99, 99},
+        { 47, 66, 99, 99, 99, 99, 99, 99},
+        { 99, 99, 99, 99, 99, 99, 99, 99},
+        { 99, 99, 99, 99, 99, 99, 99, 99},
+        { 99, 99, 99, 99, 99, 99, 99, 99},
+        { 99, 99, 99, 99, 99, 99, 99, 99}
+    };
     private static final double quality = 70;//1 is poor quality, 100 is high quality
     
-    public class Number{
+    static class Number{
         public byte value;
-        public byte occurance;
+        public int occurance;
+        public short code;
 
         public Number() {
             occurance = 0;
+            value=0;
         }
-        
-        
     }
     
-    public class Sortbyoccurance{
+    static class RLEpair{
+        public int skip;
+        public byte value;
         
+        public RLEpair(){
+            skip=0;
+            value=0;
+        }
+        public RLEpair(int s, int v){
+            skip=s;
+            value=value;
+        }
     }
     
-    public static void main(String[] args) {
+    //public static void main(String[] args) {
+    public SaveAsJPG(BufferedImage image) {
         
-        BufferedImage image = null;
+        //BufferedImage image = null;
         
         try {
-            File pnginput = new File ("C:\\Users\\Moses Cuevas\\Pictures\\parts.png");
-            image = ImageIO.read(pnginput);
+            //File pnginput = new File ("C:\\Users\\Moses Cuevas\\Pictures\\parts.png");
+            //image = ImageIO.read(pnginput);
 
             int i,j;
             int oneDimCounter=0;
@@ -60,16 +86,23 @@ public class SaveAsJPG {
             int newWidth = width + (width % BLOCKSIZE);//make picture divisible by 8
             int newHeight= height + (height % BLOCKSIZE);
             //Color [][] colors = new Color [width][height];
-            double [][] lumina = new double [newWidth][newHeight];
+            double [][] luma = new double [newWidth][newHeight];
             double [][]dctInput= new double [BLOCKSIZE][BLOCKSIZE];
             double [][]dctResult=new double [BLOCKSIZE][BLOCKSIZE];//after the dct is calculated
             double [][]dctQuantized=new double[BLOCKSIZE][BLOCKSIZE];
             
-            Number []huffTable = new Number[256];
+            Number[] huffTable;
+            huffTable = new Number[256];
+            
             //initialize table
-            for(int k=0;k<256;k++){
-                huffTable[k].value = (byte) (k - 128);
+            byte tempNum = -128;
+            for(int k=0; k<256; k++){
+                huffTable[k] = new Number();
+                huffTable[k].value = tempNum;
+                tempNum = (byte)(tempNum + 1);
             }
+
+            
             
             int []oneDimArray = new int [newWidth * newHeight];
             byte[]outputbytes=new byte[newWidth*newHeight+3];//needs work
@@ -83,25 +116,25 @@ public class SaveAsJPG {
                     green = mycolor.getGreen();
                     blue = mycolor.getBlue();
 
-                    lumina[i][j] = (double)((.299 * red) + (.578 * green) + (.114 * blue) -127);//<-- -127 to produce values around zero
+                    luma[i][j] = (double)((.299 * red) + (.578 * green) + (.114 * blue) -127);//<-- -127 to produce values around zero
                 }
             }
             
             //fill the rest with zero
             for(i = width; i < newWidth ;i++){
                 for(j = 0; j < newHeight;j++){
-                    lumina[i][j] = 0;
+                    luma[i][j] = 0;
                 }
             }
             for(i = 0; i < width ;i++){
                 for(j = height; j < newHeight;j++){
-                    lumina[i][j] = 0;
+                    luma[i][j] = 0;
                 }
             }
             
             /*for(i=0; i<newWidth; i++){
                 for(j=0; j<newHeight; j++){
-                    System.out.print(lumina[i][j]+"\t");
+                    System.out.print(luma[i][j]+"\t");
                 }
                 System.out.print("\n");
             }*/
@@ -118,7 +151,7 @@ public class SaveAsJPG {
                     // dividing into 8x8 blocks
                     for (a = 0; a < BLOCKSIZE; a++) {
                         for (b = 0; b < BLOCKSIZE; b++) {
-                            dctInput[a][b] = lumina[xstart + a][ystart + b];
+                            dctInput[a][b] = luma[xstart + a][ystart + b];
                         }
                     }
 
@@ -129,7 +162,7 @@ public class SaveAsJPG {
                     dctQuantized = quantize(dctResult);
 
                     //huffman encode - convert to 1D array and count frequency
-                    byte tempByte;
+                    /*byte tempByte;
                     for (a = 0; a < BLOCKSIZE; a++) {
                         for (b = 0; b < BLOCKSIZE; b++) {
                             tempByte = (byte)dctQuantized[a][b];
@@ -137,44 +170,69 @@ public class SaveAsJPG {
                             huffTable[(tempByte+128)].occurance++;//add one to the occurance
                             oneDimCounter++;
                         }
-                    }
-                    //sort by highest occurance to lowest
-                    for(int k=0;k<256;k++){
-                        ;
-                    }
+                    }*/
                     
-                    /*oneDimCounter=0;
+                    //now that we know what values are
+                    
+                    //zigzag with runlength encoding
+                    oneDimCounter=0;
+                    int zeroCounter=0;
                     boolean upward = true;
+                    int w=0,h=0;
+                    byte tempRLEvalue;
+                    RLEpair[] rlePairs = new RLEpair[BLOCKSIZE*BLOCKSIZE]; 
+                    int rlePairCounter=0;
                     while(oneDimCounter != BLOCKSIZE*BLOCKSIZE){
-                        int f=0,g=0;
-                        oneDimArray[oneDimCounter++] = (byte)dctQuantized[f][g];
-                        if(upward){
-                            if(f==0){
-                                upward = false;
-                                g++;
-                            }
-                            else{
-                                f--;
-                                g++;
-                            }
+                        
+                        //oneDimArray[oneDimCounter++] = (byte)dctQuantized[w][h];
+                        oneDimCounter++;
+                        tempRLEvalue = (byte)dctQuantized[w][h];
+                        
+                        //runlength encode
+                        //if(oneDimArray[oneDimCounter] == 0){
+                        if(tempRLEvalue == 0){
+                            zeroCounter++;
                         }
                         else{
-                            if(g==0){
-                                upward = true;
-                                f++;
+                            //rlePairs[rleCounter++] = new RLEpair(zeroCounter,oneDimArray[oneDimCounter]);
+                            rlePairs[rlePairCounter++] = new RLEpair(zeroCounter,tempRLEvalue);
+                            huffTable[(tempRLEvalue+128)].occurance++;//add one to the occurance
+                            zeroCounter=0;
+                        }
+                        
+                        if(upward){//zigzag logic
+                            if(h==0 && w != BLOCKSIZE-1){
+                                upward = false;
+                                w++;
+                            }
+                            else if(w == BLOCKSIZE-1){
+                                upward=false;
+                                h++;
                             }
                             else{
-                                g--;
-                                f++;
+                                h--;
+                                w++;
                             }
                         }
-                    }*/
-                    
-                    /*for (a = 0; a < BLOCKSIZE; a++) {
-                        for (b = 0; b < BLOCKSIZE; b++) {
-                            reconstImage[xstart + a][ystart + b] =(int) dctQuantized[a][b];//fill the new reconstructed image from the 8x8 block (dctArray4)
+                        else{//downward
+                            if(w==0 && h != BLOCKSIZE-1){
+                                upward = true;
+                                h++;
+                            }
+                            else if (h == BLOCKSIZE-1){
+                                upward=true;
+                                w++;
+                            }
+                            else{
+                                w--;
+                                h++;
+                            }
                         }
-                    }*/
+                    }
+                    rlePairs[rlePairCounter] = new RLEpair();//last rle has(0,0)
+                    
+                    //run length encode
+                    
                     
                 }
             }
@@ -186,25 +244,158 @@ public class SaveAsJPG {
                     System.out.print("\n");
             }
             
+            for(int k=0;k<huffTable.length;k++){
+                System.out.println(huffTable[k].occurance + " " + huffTable[k].value);
+            }
+            System.out.println("\nStarting sorting");
+            
+            //sort by highest occurance to lowest
+            int k,m;
+            Number key = new Number();
+            for(k=0; k<256; k++){
+                for(m=0;m<256-k-1;m++){
+                    if(huffTable[m].occurance<huffTable[m+1].occurance
+                        || (huffTable[m].occurance==huffTable[m+1].occurance 
+                            && huffTable[m].value<huffTable[m+1].value)){
+                        
+                        key.occurance = huffTable[m+1].occurance;
+                        key.value = huffTable[m+1].value;
+                        
+                        huffTable[m+1].occurance = huffTable[m].occurance;
+                        huffTable[m+1].value = huffTable[m].value;
+                        
+                        huffTable[m].occurance = key.occurance;
+                        huffTable[m].value = key.value;
+                    }
+                }
+            }
+            
+            System.out.println("Huff occurance\n");
+            for(k=0;k<huffTable.length;k++){
+                System.out.println(huffTable[k].occurance + " " + huffTable[k].value);
+            }
+            
 
             //write the image to a file, resource: http://web.cecs.pdx.edu/~harry/compilers/ASCIIChart.pdf
             //http://www.file-recovery.com/jpg-signature-format.htm
             outputbytes[0]= -1;  //ff StartOfImage
-            outputbytes[1]= -40; //d8 
+            outputbytes[1]= -40; //d8
+            
             outputbytes[2]= -1;  //ff Application Marker
             outputbytes[3]= -32; //e0
-            outputbytes[4]= 16; //Length
-            outputbytes[5]= 16;
             
-            outputbytes[6]= 74;//4a conforms to jfif
-            outputbytes[7]= 70;//46
-            outputbytes[8]= 73;//49
-            outputbytes[9]= 70;//46
+            outputbytes[4]= 0;   //00 Length must be >=16
+            outputbytes[5]= 16;  //10
+            
+            outputbytes[6]= 74;//4a 'j' conforms to jfif
+            outputbytes[7]= 70;//46 'f'
+            outputbytes[8]= 73;//49 'i'
+            outputbytes[9]= 70;//46 'f'
             outputbytes[10]= 0;//00
             
+            outputbytes[11]= 1;   // 01 major revision num 
+            outputbytes[12]= 1;   // 01 minor revision num
+            outputbytes[13]= 1;   // 01 units for xy density
+            outputbytes[14]= 0;   // X density
+            outputbytes[15]= 0x60;// 
+            outputbytes[16]= 0;   // Y density
+            outputbytes[17]= 0x60;//
+            outputbytes[18]= 0;   // Thumbnail width
+            outputbytes[19]= 0;   // Thumbnail height
             
-            outputbytes[40-1]= -1;//ff endOfImage
-            outputbytes[40]= -39;//d9
+            //thumbnail ignored
+            
+            //---------------------------------------------------------------DQT (Y)
+            outputbytes[20] = (byte)0xff;//Quantization Table for luma
+            outputbytes[21] = (byte)0xdb;
+            outputbytes[22] = (byte)0x00;//length
+            outputbytes[23] = (byte)0x40;
+            outputbytes[24] = (byte)0x00;//qt info number|size
+            int tempCounter=25;
+            for(k=0;k<BLOCKSIZE;k++){
+                for(m=0;m<BLOCKSIZE;m++){
+                    outputbytes[tempCounter++] = (byte) quantMatrixLuma[k][m];
+                }
+            }//by the end, tempcounter = 89
+            
+            //---------------------------------------------------------------SOF
+            outputbytes[90] = (byte)0xff;//start of frame
+            outputbytes[91] = (byte)0xc0;
+            
+            outputbytes[92] = (byte)0x00;//length      <---      <---      <---      <---      <---     <---     <---
+            outputbytes[93] = (byte)0xff;
+            
+            outputbytes[94] = (byte)0x08;//data precision
+            
+            outputbytes[95] = (byte)(height>>16);//image height
+            outputbytes[96] = (byte)(height>>24);
+           
+            outputbytes[97] = (byte)(width>>16);//image width
+            outputbytes[98] = (byte)(width>>24);
+            
+            outputbytes[99] = (byte)0x01;//number of components
+            
+            //for each component
+            outputbytes[100] = (byte)0x01;//component id
+            outputbytes[101] = (byte)0x88;//sampling factors vert|horiz
+            outputbytes[102] = (byte)0x00;//quantTable number
+            
+            
+            //---------------------------------------------------------------DHT
+            outputbytes[103] = (byte)0xff;//huffman Table
+            outputbytes[104] = (byte)0xc4;
+            
+            outputbytes[105] = (byte) 0x00;//length
+            outputbytes[105] = (byte) 0x00;
+            
+            outputbytes[105] = (byte) 0x00;//info number|type (DC)
+            
+            //number of symbols per type (16 bytes total)
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            
+            //---------------------------------------------------------------SOS
+            outputbytes[105] = (byte) 0xff;//Start of Scan
+            outputbytes[105] = (byte) 0xda;
+            
+            outputbytes[105] = (byte) 0x00;//length
+            outputbytes[105] = (byte) 0x00;//6+2*(number of components in scan)
+            
+            outputbytes[105] = (byte) 0x00;//number of components in scan
+            
+            //for each component
+            outputbytes[105] = (byte) 0x01;//component id
+            outputbytes[105] = (byte) 0x00;//DHT to use AC|DC
+            
+            outputbytes[105] = (byte) 0x00;//must skip 3 bytes
+            outputbytes[105] = (byte) 0x00;
+            outputbytes[105] = (byte) 0x00;
+            
+            //image data start
+            
+            
+            
+            //---------------------------------------------------------------EOI
+            outputbytes[200]= -1;//ff endOfImage
+            outputbytes[201]= -39;//d9
+            
             try( //ImageIO.write(image, "png",new File("C:\\Users\\Moses Cuevas\\Pictures\\newBird.jpg"));
                 FileOutputStream stream = new FileOutputStream(System.getProperty("user.dir")+"\\savedOutputFile.jpg")) {
                 stream.write(outputbytes);
@@ -216,6 +407,8 @@ public class SaveAsJPG {
         }
         System.out.println("Done");
     }
+    
+    // -------------  -------------  -------------  -------------  -------------  ------------- functions 
 
     private static double[][] calcDCT(double [][] dctarray){
 
@@ -224,15 +417,15 @@ public class SaveAsJPG {
         for (int u = 0; u < BLOCKSIZE; u++){
             for (int v = 0; v < BLOCKSIZE; v++){
                 
-                buffer[u][v] = (double)(.25) * edgecase((int) u) * edgecase((int) v);//may need to cast to double
+                buffer[u][v] = (double)(.25) * coefficient((int) u) * coefficient((int) v);//may need to cast to double
                 //System.out.print(buffer[u][v]+"\t");
                 double xysum = 0;
                 for (int x = 0; x < BLOCKSIZE; x++){
                     for (int y = 0; y < BLOCKSIZE; y++){
                         //System.out.print(dctarray[x][y]+"\t");
                         xysum += dctarray[y][x]//flip for transpose
-                                      * Math.cos(((2 * x + 1) * u * Math.PI) / 16.0)
-                                      * Math.cos(((2 * y + 1) * v * Math.PI) / 16.0);
+                                      * Math.cos(((2 * x + 1) * u * Math.PI) / (2.0*BLOCKSIZE))
+                                      * Math.cos(((2 * y + 1) * v * Math.PI) / (2.0*BLOCKSIZE));
                     }
                    // System.out.print("\n");
                 }
@@ -244,7 +437,7 @@ public class SaveAsJPG {
         return (buffer);
     }
     
-    private static double edgecase(int index){// <-- <-- <-- don't forget to rename this!!! <-- <-- <--
+    private static double coefficient(int index){// <-- <-- <-- don't forget to rename this!!! <-- <-- <--
         double result;
         if(index == 0){
             result = (double) (1.0/Math.sqrt(2.0));
@@ -261,7 +454,7 @@ public class SaveAsJPG {
         for (i = 0; i < BLOCKSIZE; i++){
             for (j = 0; j < BLOCKSIZE; j++){
             	//quantum[i][j] = dctarray[i][j]/(1 + ((1 + i + j) * quality));
-                quantum[i][j] = dctarray[i][j]/Math.floor((S(quality)*quantMatrix[i][j]+50)/100);
+                quantum[i][j] = dctarray[i][j]/Math.floor((S(quality)*quantMatrixLuma[i][j]+50)/100);
             }
         }
         return quantum;

@@ -2,45 +2,157 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" 
-      prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.171" 
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController" id="mainWindow">
+<Pane id="mainWindow" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="paint.paintfxmlController">
    <children>
-      <VBox prefHeight="50.0" prefWidth="1280.0" id="Topbar">
+      <VBox id="Topbar" prefHeight="50.0" prefWidth="1280.0">
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+            <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#toolselected" text="Brush">
+                  <MenuButton mnemonicParsing="false" text="File">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Open" />
+                      <MenuItem mnemonicParsing="false" onAction="#saveJpeg" text="Save Jpeg" />
+                        <MenuItem mnemonicParsing="false" onAction="#savePng" text="Save Png" />
+                        <MenuItem mnemonicParsing="false" text="Exit" />
+                    </items>
+                  </MenuButton>
+                  <MenuButton mnemonicParsing="false" text="Edit">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Undo" />
+                        <MenuItem mnemonicParsing="false" text="Copy" />
+                        <MenuItem mnemonicParsing="false" text="Paste" />
+                        <MenuItem mnemonicParsing="false" text="Preferences" />
+                     </items>
+                  </MenuButton>
+                  <MenuButton mnemonicParsing="false" text="View">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Zoom" />
+                        <MenuItem mnemonicParsing="false" text="Grid" />
+                        <MenuItem mnemonicParsing="false" text="Rulers" />
+                     </items>
+                  </MenuButton>
+                  <Button mnemonicParsing="false" onAction="#test" text="Start Test" textAlignment="CENTER">
                      <HBox.margin>
-                        <Insets left="10.0" top="5.0" />
+                        <Insets left="200.0" />
                      </HBox.margin>
                   </Button>
-                  <ColorPicker fx:id="colorpicker">
+                  <Button fx:id="btn_end" mnemonicParsing="false" text="End Test">
                      <HBox.margin>
-                        <Insets top="5.0" />
-                     </HBox.margin>
-                  </ColorPicker>
-                  <TextField fx:id="bsize">
-                     <HBox.margin>
-                        <Insets top="5.0" />
-                     </HBox.margin>
-                  </TextField>
-                  <Button mnemonicParsing="false" onAction="#newcanvas" text="New Canvas">
-                     <HBox.margin>
-                        <Insets top="5.0" />
+                        <Insets left="30.0" />
                      </HBox.margin>
                   </Button>
                </children>
             </HBox>
          </children>
+         <padding>
+            <Insets top="10.0" />
+         </padding>
       </VBox>
-      <Canvas fx:id="canvas" height="616.0" layoutX="14.0" layoutY="85.0" width="1252.0" id="canvasColor"/>
+      <Canvas id="canvasColor" fx:id="canvas" height="646.0" layoutX="186.0" layoutY="55.0" width="832.0" />
+      <VBox alignment="TOP_CENTER" layoutX="14.0" layoutY="49.0" prefHeight="660.0" prefWidth="164.0" spacing="10.0">
+         <children>
+            <Button fx:id="btn_draw" mnemonicParsing="false" onAction="#toolselected" prefHeight="36.0" prefWidth="65.0" text="Draw" />
+            <Button mnemonicParsing="false" text="Color" />
+            <HBox alignment="TOP_CENTER" prefHeight="20.0" prefWidth="276.0" spacing="10.0">
+               <children>
+                  <Rectangle fx:id="recentcolor1" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+                  <Rectangle fx:id="recentcolor2" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+                  <Rectangle fx:id="recentcolor3" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+               </children>
+            </HBox>
+            <HBox alignment="TOP_CENTER" prefHeight="28.0" prefWidth="236.0" spacing="10.0">
+               <children>
+                  <Rectangle fx:id="recentcolor4" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+                  <Rectangle fx:id="recentcolor5" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+                  <Rectangle fx:id="recentcolor6" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="31.0" stroke="BLACK" strokeType="INSIDE" width="31.0" />
+               </children>
+            </HBox>
+            <Button mnemonicParsing="false" text="Select" />
+            <Button mnemonicParsing="false" onAction="#saveJpeg" text="Save" />
+            <Button mnemonicParsing="false" onAction="#newcanvas" text="New Canvas" />
+         </children>
+      </VBox>
+      <VBox layoutX="1030.0" layoutY="49.0" prefHeight="660.0" prefWidth="236.0" spacing="10.0">
+         <children>
+            <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="276.0" spacing="10.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#subone" text="-" />
+                  <TextField fx:id="bsize" alignment="TOP_CENTER" prefHeight="31.0" prefWidth="123.0" text="3" />
+                  <Button mnemonicParsing="false" onAction="#addone" text="+" />
+               </children>
+            </HBox>
+            <Accordion prefHeight="467.0" prefWidth="220.0">
+              <panes>
+                <TitledPane animated="false" text="Drawing">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Button layoutX="3.0" layoutY="3.0" mnemonicParsing="false" onAction="#toolselected" text="Brush" />
+                              <Button layoutX="2.0" layoutY="47.0" mnemonicParsing="false" text="Eraser" />
+                              <Button layoutX="158.0" layoutY="3.0" mnemonicParsing="false" text="Bezier" />
+                              <Button layoutX="72.0" layoutY="3.0" mnemonicParsing="false" text="Smudge" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Brush Types">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Button mnemonicParsing="false" text="Pencil" />
+                              <Button layoutX="127.0" mnemonicParsing="false" text="Round" />
+                              <Button layoutX="-2.0" layoutY="39.0" mnemonicParsing="false" text="Stamp" />
+                              <Button layoutX="72.0" mnemonicParsing="false" text="Flat" />
+                              <Button layoutX="72.0" layoutY="39.0" mnemonicParsing="false" text="AirBrush" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </TitledPane>
+                  <TitledPane animated="false" text="Color">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ColorPicker fx:id="colorpicker" layoutX="7.0" layoutY="44.0" />
+                              <Button layoutX="7.0" layoutY="7.0" mnemonicParsing="false" text="Color Fill" />
+                              <Slider layoutX="13.0" layoutY="121.0" />
+                              <Button layoutX="8.0" layoutY="82.0" mnemonicParsing="false" text="Gradient" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </TitledPane>
+                <TitledPane animated="false" text="Selection">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Button mnemonicParsing="false" text="Rectangle" />
+                              <Button layoutY="39.0" mnemonicParsing="false" text="Circle" />
+                              <Button layoutX="-1.0" layoutY="77.0" mnemonicParsing="false" text="Freehand" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </TitledPane>
+                  <TitledPane animated="false" text="Layers">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                     </content>
+                  </TitledPane>
+              </panes>
+            </Accordion>
+         </children>
+      </VBox>
    </children>
 </Pane>
