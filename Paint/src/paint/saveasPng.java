@@ -1,9 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package paint;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,9 +16,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 public class saveasPng {
 
-    /**
-     * @param args the command line arguments
-     */
+
     /*public static void main(String[] args) throws IOException {
         BufferedImage image = null;
  File pngimage = new File ("D:\\Pictures\\test.png");
@@ -79,10 +73,10 @@ final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getDa
 
       return result; }
 public static void write(int[][] result, OutputStream out) throws IOException {
-		// PNG header (a pretty clever magic string)
+		
 		out.write(new byte[]{(byte)0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n'});
 		
-		// IHDR chunk (image dimensions, color depth, compression method, etc.)
+		//(width, height, color depth, compression method, etc.)
 		int width = result[0].length;
 		int height = result.length;
 		byte[] ihdr = new byte[13];
@@ -101,8 +95,7 @@ public static void write(int[][] result, OutputStream out) throws IOException {
 		ihdr[12] = 0;  // Interlace method: None
 		writeChunk("IHDR", ihdr, out);
 		
-		// IDAT chunk (pixel values and row filters)
-		// Note: One additional byte at the beginning of each row specifies the filtering method
+		
 		if ((Integer.MAX_VALUE / height - 1) / width < 3)
 			throw new IllegalArgumentException("Dimensions too large");
 		int rowSize = width * 3 + 1;
@@ -128,20 +121,20 @@ private static byte[] deflate(byte[] data) throws IOException {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		
 		// zlib header
-		b.write(0x08);  // Compression method: DEFLATE; window size: 256 bytes
-		b.write(0x1D);  // Flag checksum, no preset dictionary, fastest compression level
+		b.write(0x08);  // Compression method: DEFLATE;
+		b.write(0x1D);  
 		
 		// DEFLATE data
 		int offset = 0;
 		do {
 			int curBlockSize = Math.min(data.length - offset, 0xFFFF);
-			int blockType = 0;  // BTYPE: No compression (verbatim)
+			int blockType = 0;  
 			if (offset + curBlockSize == data.length)
-				blockType |= 1;  // BFINAL
+				blockType |= 1;  
 			b.write(blockType);
-			b.write(curBlockSize >>> 0);  // Little-endian
+			b.write(curBlockSize >>> 0); 
 			b.write(curBlockSize >>> 8);
-			b.write((~curBlockSize) >>> 0);  // Ones' complement, little-endian
+			b.write((~curBlockSize) >>> 0);  
 			b.write((~curBlockSize) >>> 8);
 			b.write(data, offset, curBlockSize);
 			offset += curBlockSize;
@@ -156,17 +149,16 @@ private static byte[] deflate(byte[] data) throws IOException {
 	}
 	
 	
-	// Writes the given chunk (with type name and payload data) to the given output stream.
-	// This takes care of also writing the length and CRC.
+	
 	private static void writeChunk(String type, byte[] data, OutputStream out) throws IOException {
 		CRC32 c = new CRC32();
 		c.update(type.getBytes(StandardCharsets.US_ASCII));
 		c.update(data);
 		
-		writeInt32(data.length, out);  // Length
+		writeInt32(data.length, out);  
 		out.write(type.getBytes(StandardCharsets.US_ASCII));  // Type
 		out.write(data);  // Data
-		writeInt32((int)c.getValue(), out);  // CRC-32
+		writeInt32((int)c.getValue(), out);  
 	}
 	
 	
