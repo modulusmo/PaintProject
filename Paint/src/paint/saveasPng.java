@@ -88,11 +88,11 @@ public static void write(int[][] result, OutputStream out) throws IOException {
 		ihdr[ 5] = (byte)(height >>> 16);
 		ihdr[ 6] = (byte)(height >>>  8);
 		ihdr[ 7] = (byte)(height >>>  0);
-		ihdr[ 8] = 8;  // Bit depth: 8 bits per sample
+		ihdr[ 8] = 8;  // Bit depth: 8 bits
 		ihdr[ 9] = 2;  // Color type: True color RGB
 		ihdr[10] = 0;  // Compression method: DEFLATE
-		ihdr[11] = 0;  // Filter method: Adaptive
-		ihdr[12] = 0;  // Interlace method: None
+		ihdr[11] = 0;  
+		ihdr[12] = 0;  
 		writeChunk("IHDR", ihdr, out);
 		
 		
