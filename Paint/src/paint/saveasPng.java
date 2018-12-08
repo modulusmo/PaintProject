@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package saveaspng;
+package paint;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -18,12 +18,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-public class SaveasPNG {
+public class saveasPng {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException {
+    /*public static void main(String[] args) throws IOException {
         BufferedImage image = null;
  File pngimage = new File ("D:\\Pictures\\test.png");
 image = ImageIO.read(pngimage);
@@ -35,10 +35,10 @@ int[][] result = PngGetPixels(image);
 		}
 	
     
-}
+}*/
 
 
-private static int[][] PngGetPixels (BufferedImage image) {
+public static int[][] PngGetPixels (BufferedImage image) {
 final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
       final int width = image.getWidth();
       final int height = image.getHeight();
