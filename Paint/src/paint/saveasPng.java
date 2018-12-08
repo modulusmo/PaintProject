@@ -120,9 +120,9 @@ public static void write(int[][] result, OutputStream out) throws IOException {
 private static byte[] deflate(byte[] data) throws IOException {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		
-		// zlib header
-		b.write(0x08);  // Compression method: DEFLATE;
-		b.write(0x1D);  
+		// zlib container
+		b.write(0x08);  // Compression: DEFLATE;
+		b.write(0x1D);  // Fastest compression level
 		
 		// DEFLATE data
 		int offset = 0;
