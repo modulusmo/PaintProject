@@ -45,7 +45,7 @@
                         <MenuItem mnemonicParsing="false" text="Rulers" />
                      </items>
                   </MenuButton>
-                  <Button mnemonicParsing="false" onAction="#test" text="Start Test" textAlignment="CENTER">
+                  <!--<Button mnemonicParsing="false" onAction="#test" text="Start Test" textAlignment="CENTER">
                      <HBox.margin>
                         <Insets left="200.0" />
                      </HBox.margin>
@@ -54,7 +54,7 @@
                      <HBox.margin>
                         <Insets left="30.0" />
                      </HBox.margin>
-                  </Button>
+                  </Button>/-->
                </children>
             </HBox>
          </children>

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.embed.swing.SwingFXUtils;
+import static javafx.embed.swing.SwingFXUtils.fromFXImage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -78,7 +79,7 @@ public class paintfxmlController implements Initializable {
         recentcolor5.setFill(Color.RED);
         recentcolor6.setFill(Color.BLUE);
         
-        colorpicker.setValue(Color.GREEN);
+        colorpicker.setValue(Color.BLUE);
         
         brushTool = canvas.getGraphicsContext2D();
         canvas.setOnMouseDragged(e -> {
@@ -186,7 +187,8 @@ public class paintfxmlController implements Initializable {
         //File file = new File("testFromJavaPaint.jpg");
         //BufferedImage bimage = (SwingFXUtils.fromFXImage(img, null))
         
-        BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        //BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        BufferedImage bimage = fromFXImage(wimage, null);
         
         
         SaveAsJPG jpegHandler= new SaveAsJPG(bimage);
@@ -208,18 +210,21 @@ public class paintfxmlController implements Initializable {
         canvas.snapshot(sp,wimage);
         
         //File file = new File("testFromJavaPaint.png");
-        BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        //BufferedImage bimage = (SwingFXUtils.fromFXImage(wimage, null));
+        BufferedImage bimage = fromFXImage(wimage,null);
+        BufferedImage bimageByte = new BufferedImage(bimage.getWidth(), bimage.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
         
+        bimageByte.getGraphics().drawImage(bimage, 0, 0, null);
         /*try {
             ImageIO.write(SwingFXUtils.fromFXImage(wimage, null), "png", file);//remove this
         } catch (IOException ex) {
             // TODO: handle exception here
         }*/
         
-        saveasPng pngHandler = new saveasPng();
-        int[][] result = pngHandler.PngGetPixels(bimage);
+        //saveasPng pngHandler = new saveasPng();
+        int[][] result = saveasPng.PngGetPixels(bimageByte);
         try (OutputStream out = new FileOutputStream("PngOutput.png")) {
-            pngHandler.write(result, out);
+            saveasPng.write(result, out);
         }
         catch(Exception f){}
     }
@@ -240,7 +245,7 @@ public class paintfxmlController implements Initializable {
         }
     }
     
-    @FXML
+    /*@FXML
     public void test(ActionEvent e){//for testing purposes only - can be removed later
         Button btnTest1 = new Button();
         btnTest1.setText("Test 1");
@@ -308,5 +313,5 @@ public class paintfxmlController implements Initializable {
                 test3time = timer3end - timer3start;
             }
         });
-    }
+    }*/
 }
