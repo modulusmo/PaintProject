@@ -82,7 +82,7 @@
                </children>
             </HBox>
             <Button mnemonicParsing="false" text="Select" />
-            <Button mnemonicParsing="false" onAction="#saveJpeg" text="Save" />
+            <Button mnemonicParsing="false" onAction="#savePng" text="Save" />
             <Button mnemonicParsing="false" onAction="#newcanvas" text="New Canvas" />
          </children>
       </VBox>
