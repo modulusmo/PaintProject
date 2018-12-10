@@ -25,7 +25,8 @@
                   <MenuButton mnemonicParsing="false" text="File">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Open" />
-                      <MenuItem mnemonicParsing="false" onAction="#saveAsJpeg" text="Save" />
+                      <MenuItem mnemonicParsing="false" onAction="#saveJpeg" text="Save Jpeg" />
+                        <MenuItem mnemonicParsing="false" onAction="#savePng" text="Save Png" />
                         <MenuItem mnemonicParsing="false" text="Exit" />
                     </items>
                   </MenuButton>
@@ -81,7 +82,7 @@
                </children>
             </HBox>
             <Button mnemonicParsing="false" text="Select" />
-            <Button mnemonicParsing="false" onAction="#saveAsJpeg" text="Save" />
+            <Button mnemonicParsing="false" onAction="#saveJpeg" text="Save" />
             <Button mnemonicParsing="false" onAction="#newcanvas" text="New Canvas" />
          </children>
       </VBox>
@@ -89,9 +90,9 @@
          <children>
             <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="276.0" spacing="10.0">
                <children>
-                  <Button mnemonicParsing="false" text="-" />
+                  <Button mnemonicParsing="false" onAction="#subone" text="-" />
                   <TextField fx:id="bsize" alignment="TOP_CENTER" prefHeight="31.0" prefWidth="123.0" text="3" />
-                  <Button mnemonicParsing="false" text="+" />
+                  <Button mnemonicParsing="false" onAction="#addone" text="+" />
                </children>
             </HBox>
             <Accordion prefHeight="467.0" prefWidth="220.0">
